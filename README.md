@@ -1,1 +1,178 @@
 # kazuhapham.github.io
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Social Experiment</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fff0f3;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        #container {
+            background: white;
+            padding: 2rem;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
+            max-width: 400px;
+            width: 90%;
+            z-index: 10;
+        }
+
+        .display-img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 { color: #ff4d6d; font-size: 1.5rem; line-height: 1.4; }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 25px;
+            min-height: 120px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
+        }
+
+        #yesBtn { background-color: #ff4d6d; color: white; font-weight: bold; position: relative; z-index: 11; }
+        #noBtn { background-color: #ffb3c1; color: #590d22; }
+        
+        #replayBtn {
+            background-color: #ffb3c1;
+            color: #590d22;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .hidden { display: none; }
+
+        .heart {
+            position: absolute;
+            color: #ff4d6d;
+            font-size: 20px;
+            user-select: none;
+            pointer-events: none;
+            animation: float 4s linear forwards;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="https://files.catbox.moe/n2j0fi.m4a" type="audio/mp4">
+    </audio>
+
+    <div id="container">
+        <img id="mainImg" src="https://files.catbox.moe/urj25y.jpg" alt="Experiment" class="display-img">
+
+        <div id="quiz">
+            <h1 id="mainHeading">Hey Tina do you wanna be my<br><strong>"Valentine"?</strong></h1>
+            <div class="buttons">
+                <button id="yesBtn">Yes</button>
+                <button id="noBtn">No</button>
+            </div>
+        </div>
+
+        <div id="success-msg" class="hidden">
+            <h1 style="font-size: 2rem;">Success! ❤️</h1>
+            <p>The experiment is officially underway.<br>See you on Feb 14th!</p>
+            <button id="replayBtn">Restart Experiment 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const replayBtn = document.getElementById('replayBtn');
+        const quiz = document.getElementById('quiz');
+        const successMsg = document.getElementById('success-msg');
+        const mainImg = document.getElementById('mainImg');
+        const audio = document.getElementById('bgMusic');
+        
+        let scale = 1;
+        let hasWonOnce = false;
+
+        function playMusic() {
+            audio.play().catch(() => {});
+        }
+
+        noBtn.addEventListener('click', () => {
+            playMusic();
+            scale += 0.6;
+            yesBtn.style.transform = `scale(${scale})`;
+            
+            // Custom messages for the second attempt
+            const originalPhrases = ["Wait, what?", "Wrong button!", "Try again!", "Are you sure?"];
+            const repeatPhrases = ["Wait, we already said yes!", "You're just testing me now!", "The results are in, click yes!", "Nat... really? 😂"];
+            
+            const currentPhrases = hasWonOnce ? repeatPhrases : originalPhrases;
+            noBtn.innerText = currentPhrases[Math.floor(Math.random() * currentPhrases.length)];
+        });
+
+        yesBtn.addEventListener('click', () => {
+            playMusic();
+            hasWonOnce = true;
+            mainImg.src = "https://files.catbox.moe/9wvixg.jpg";
+            quiz.classList.add('hidden');
+            successMsg.classList.remove('hidden');
+            startHearts();
+        });
+
+        replayBtn.addEventListener('click', () => {
+            // Reset state
+            scale = 1;
+            yesBtn.style.transform = `scale(1)`;
+            noBtn.innerText = "No";
+            mainImg.src = "https://files.catbox.moe/urj25y.jpg";
+            
+            successMsg.classList.add('hidden');
+            quiz.classList.remove('hidden');
+        });
+
+        function startHearts() {
+            // Only spawn a burst of hearts to avoid slowing down the browser on repeats
+            for(let i=0; i<15; i++) {
+                setTimeout(createHeart, i * 100);
+            }
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 4000);
+        }
+    </script>
+</body>
+</html>
